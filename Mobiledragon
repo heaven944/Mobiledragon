@@ -1,71 +1,145 @@
-spawn(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Sin%20Dragon"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Sin%20Dragon"))()
+
+local UserInputService = game:GetService("UserInputService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+if not UserInputService.TouchEnabled then return end
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MobileKeyButtons"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+local letters = {"Z", "X", "C"}
+local buttons = {}
+local isLocked = false
+
+local lockBox = Instance.new("Frame")
+lockBox.Size = UDim2.new(0, 150, 0, 40)
+lockBox.Position = UDim2.new(1, -160, 0, 20)
+lockBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+lockBox.BorderSizePixel = 0
+lockBox.Parent = screenGui
+
+local lockButton = Instance.new("TextButton")
+lockButton.Size = UDim2.new(0, 120, 0, 40)
+lockButton.Position = UDim2.new(0, 10, 0, 0)
+lockButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+lockButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+lockButton.Font = Enum.Font.SourceSansBold
+lockButton.TextScaled = true
+lockButton.BorderSizePixel = 0
+lockButton.Text = "Lock: Off"
+lockButton.Parent = lockBox
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -30, 0, 0)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.TextScaled = true
+closeButton.Text = "-"
+closeButton.Parent = lockBox
+
+local dragging = false
+local dragInput, dragStart, startPos
+local boxMinimized = false
+
+lockButton.MouseButton1Click:Connect(function()
+    isLocked = not isLocked
+    lockButton.Text = isLocked and "Lock: On" or "Lock: Off"
 end)
 
-spawn(function()
-    local UserInputService = game:GetService("UserInputService")
-    local VirtualInputManager = game:GetService("VirtualInputManager")
-    local Players = game:GetService("Players")
+closeButton.MouseButton1Click:Connect(function()
+    boxMinimized = not boxMinimized
+    if boxMinimized then
+        lockBox.Size = UDim2.new(0, 60, 0, 30)
+        lockButton.Visible = false
+    else
+        lockBox.Size = UDim2.new(0, 150, 0, 40)
+        lockButton.Visible = true
+    end
+end)
 
-    local player = Players.LocalPlayer
-    local playerGui = player:WaitForChild("PlayerGui")
+lockBox.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed or not lockBox.Visible then return end
+    if input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = lockBox.Position
 
-    if not UserInputService.TouchEnabled then return end
-
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "MobileKeyButtons"
-    screenGui.ResetOnSpawn = false
-    screenGui.Parent = playerGui
-
-    local letters = {"Z", "X", "C"}
-
-    for i, key in ipairs(letters) do
-        local button = Instance.new("TextButton")
-        button.Name = key .. "Button"
-        button.Text = key
-        button.Size = UDim2.new(0, 60, 0, 60)
-        button.Position = UDim2.new(0, 20, 0, 100 + (i - 1) * 80)
-        button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        button.TextColor3 = Color3.fromRGB(0, 0, 0)
-        button.Font = Enum.Font.SourceSansBold
-        button.TextScaled = true
-        button.BorderSizePixel = 2
-        button.Parent = screenGui
-
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 12)
-        corner.Parent = button
-
-        local dragging = false
-        local dragInput, dragStart, startPos
-
-        button.InputBegan:Connect(function(input, gameProcessed)
-            if gameProcessed then return end
-
-            if input.UserInputType == Enum.UserInputType.Touch then
-                dragging = true
-                dragStart = input.Position
-                startPos = button.Position
-
-                input.Changed:Connect(function()
-                    if input.UserInputState == Enum.UserInputState.End then
-                        dragging = false
-                    end
-                end)
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
             end
-        end)
-
-        UserInputService.InputChanged:Connect(function(input)
-            if dragging and input.UserInputType == Enum.UserInputType.Touch then
-                local delta = input.Position - dragStart
-                button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-            end
-        end)
-
-        button.MouseButton1Click:Connect(function()
-            VirtualInputManager:SendKeyEvent(true, key, false, game)
-            wait()
-            VirtualInputManager:SendKeyEvent(false, key, false, game)
         end)
     end
 end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.Touch then
+        local delta = input.Position - dragStart
+        lockBox.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+local closeButtonCorner = Instance.new("UICorner")
+closeButtonCorner.CornerRadius = UDim.new(0, 6)
+closeButtonCorner.Parent = closeButton
+
+for i, key in ipairs(letters) do
+    local button = Instance.new("TextButton")
+    button.Name = key .. "Button"
+    button.Text = key
+    button.Size = UDim2.new(0, 60, 0, 60)
+    button.Position = UDim2.new(0, 20, 0, 100 + (i - 1) * 80)
+    button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextColor3 = Color3.fromRGB(0, 0, 0)
+    button.Font = Enum.Font.SourceSansBold
+    button.TextScaled = true
+    button.BorderSizePixel = 2
+    button.Parent = screenGui
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = button
+
+    local buttonDragging = false
+    local buttonDragInput, buttonDragStart, buttonStartPos
+
+    button.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed or isLocked then return end
+
+        if input.UserInputType == Enum.UserInputType.Touch then
+            buttonDragging = true
+            buttonDragStart = input.Position
+            buttonStartPos = button.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    buttonDragging = false
+                end
+            end)
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if buttonDragging and input.UserInputType == Enum.UserInputType.Touch then
+            local delta = input.Position - buttonDragStart
+            button.Position = UDim2.new(buttonStartPos.X.Scale, buttonStartPos.X.Offset + delta.X, buttonStartPos.Y.Scale, buttonStartPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    button.MouseButton1Click:Connect(function()
+        VirtualInputManager:SendKeyEvent(true, key, false, game)
+        wait()
+        VirtualInputManager:SendKeyEvent(false, key, false, game)
+    end)
+
+    table.insert(buttons, button)
+end
