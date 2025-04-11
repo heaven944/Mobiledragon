@@ -7,7 +7,6 @@ local playerGui = player:WaitForChild("PlayerGui")
 
 if not UserInputService.TouchEnabled then return end
 
--- GUI
 local mainGui = Instance.new("ScreenGui")
 mainGui.Name = "MobileLauncher"
 mainGui.ResetOnSpawn = false
@@ -16,7 +15,7 @@ mainGui.Parent = playerGui
 local scrollFrame = Instance.new("ScrollingFrame")
 scrollFrame.Size = UDim2.new(0, 300, 0, 150)
 scrollFrame.Position = UDim2.new(0.5, -150, 0.2, 0)
-scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 300)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 600)
 scrollFrame.ScrollBarThickness = 6
 scrollFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 scrollFrame.BorderSizePixel = 0
@@ -43,7 +42,7 @@ local function createButton(name, callback)
 	corner.Parent = button
 end
 
-local function createKeybindGui(keys)
+local function createKeybindGui(keys, rightSideKeys)
 	local screenGui = Instance.new("ScreenGui")
 	screenGui.Name = "MobileKeyButtons"
 	screenGui.ResetOnSpawn = false
@@ -121,13 +120,12 @@ local function createKeybindGui(keys)
 		end
 	end)
 
-	local spacing = 90
-	for i, key in ipairs(keys) do
+	local function createKeyButton(key, pos)
 		local button = Instance.new("TextButton")
 		button.Name = key .. "Button"
 		button.Text = key
 		button.Size = UDim2.new(0, 60, 0, 60)
-		button.Position = UDim2.new(0, 20, 0, 100 + (i - 1) * spacing)
+		button.Position = pos
 		button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		button.TextColor3 = Color3.fromRGB(0, 0, 0)
 		button.Font = Enum.Font.SourceSansBold
@@ -170,16 +168,60 @@ local function createKeybindGui(keys)
 			VirtualInputManager:SendKeyEvent(false, key, false, game)
 		end)
 	end
+
+	local leftKeys = {}
+	local rightKeys = {}
+
+	for _, key in ipairs(keys) do table.insert(leftKeys, key) end
+	if rightSideKeys then for _, key in ipairs(rightSideKeys) do table.insert(rightKeys, key) end end
+
+	for i, key in ipairs(leftKeys) do
+		createKeyButton(key, UDim2.new(0, 20, 0, 100 + (i - 1) * 90))
+	end
+	for i, key in ipairs(rightKeys) do
+		createKeyButton(key, UDim2.new(1, -220 + (i - 1) * 70, 0, 160))
+	end
 end
 
+-- Script buttons:
 createButton("Sin Dragon", function()
 	mainGui:Destroy()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Sin%20Dragon"))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Sin%20Dragon"))()
 	createKeybindGui({"Z", "X", "C"})
 end)
 
 createButton("Motorcycle", function()
 	mainGui:Destroy()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Motorcycle"))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Motorcycle"))()
 	createKeybindGui({"Z"})
+end)
+
+createButton("Neptunian", function()
+	mainGui:Destroy()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Neptunian%20V"))()
+	createKeybindGui({"R", "F"}, {"Z", "X", "C"})
+end)
+
+createButton("Ban Hammer", function()
+	mainGui:Destroy()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Ban%20Hammer"))()
+	createKeybindGui({"E", "R"})
+end)
+
+createButton("Studio Dummy", function()
+	mainGui:Destroy()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Studio%20Dummy"))()
+	createKeybindGui({"E", "Z"})
+end)
+
+createButton("Lighting Cannon", function()
+	mainGui:Destroy()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Lightning%20Cannon"))()
+	createKeybindGui({"E", "Z", "X"}, {"C", "V", "B"})
+end)
+
+createButton("Goner", function()
+	mainGui:Destroy()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Goner"))()
+	createKeybindGui({"Q"})
 end)
