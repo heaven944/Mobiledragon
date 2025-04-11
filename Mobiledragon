@@ -17,7 +17,7 @@ scrollFrame.Size = UDim2.new(0, 300, 0, 150)
 scrollFrame.Position = UDim2.new(0.5, -150, 0.2, 0)
 scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 600)
 scrollFrame.ScrollBarThickness = 6
-scrollFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+scrollFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 scrollFrame.BorderSizePixel = 0
 scrollFrame.Parent = mainGui
 
@@ -26,202 +26,214 @@ UIListLayout.Padding = UDim.new(0, 8)
 UIListLayout.Parent = scrollFrame
 
 local function createButton(name, callback)
-	local button = Instance.new("TextButton")
-	button.Size = UDim2.new(1, -10, 0, 50)
-	button.Position = UDim2.new(0, 5, 0, 0)
-	button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-	button.TextColor3 = Color3.fromRGB(255, 255, 255)
-	button.Font = Enum.Font.SourceSansBold
-	button.TextScaled = true
-	button.BorderSizePixel = 0
-	button.Text = name
-	button.Parent = scrollFrame
-	button.Activated:Connect(callback)
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 10)
-	corner.Parent = button
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, -10, 0, 50)
+    button.Position = UDim2.new(0, 5, 0, 0)
+    button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Font = Enum.Font.SourceSansBold
+    button.TextScaled = true
+    button.BorderSizePixel = 0
+    button.Text = name
+    button.Parent = scrollFrame
+
+    -- Add gradient background for sleek effect
+    local gradient = Instance.new("UIGradient")
+    gradient.Parent = button
+    gradient.Color = ColorSequence.new(Color3.fromRGB(50, 50, 50), Color3.fromRGB(30, 30, 30))
+    gradient.Rotation = 45
+
+    -- Button animation for press effect
+    button.MouseButton1Down:Connect(function()
+        button:TweenSize(UDim2.new(1, -10, 0, 45), "Out", "Quad", 0.1, true)
+    end)
+    button.MouseButton1Up:Connect(function()
+        button:TweenSize(UDim2.new(1, -10, 0, 50), "Out", "Quad", 0.1, true)
+    end)
+
+    button.Activated:Connect(callback)
 end
 
 local function createKeybindGui(keys, rightSideKeys)
-	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "MobileKeyButtons"
-	screenGui.ResetOnSpawn = false
-	screenGui.Parent = playerGui
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "MobileKeyButtons"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = playerGui
 
-	local isLocked = false
+    local isLocked = false
 
-	local lockBox = Instance.new("Frame")
-	lockBox.Size = UDim2.new(0, 150, 0, 40)
-	lockBox.Position = UDim2.new(1, -160, 0, 20)
-	lockBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-	lockBox.BorderSizePixel = 0
-	lockBox.Parent = screenGui
+    local lockBox = Instance.new("Frame")
+    lockBox.Size = UDim2.new(0, 150, 0, 40)
+    lockBox.Position = UDim2.new(1, -160, 0, 20)
+    lockBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    lockBox.BorderSizePixel = 0
+    lockBox.Parent = screenGui
 
-	local lockButton = Instance.new("TextButton")
-	lockButton.Size = UDim2.new(0, 120, 0, 40)
-	lockButton.Position = UDim2.new(0, 10, 0, 0)
-	lockButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-	lockButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-	lockButton.Font = Enum.Font.SourceSansBold
-	lockButton.TextScaled = true
-	lockButton.BorderSizePixel = 0
-	lockButton.Text = "Lock: Off"
-	lockButton.Parent = lockBox
+    local lockButton = Instance.new("TextButton")
+    lockButton.Size = UDim2.new(0, 120, 0, 40)
+    lockButton.Position = UDim2.new(0, 10, 0, 0)
+    lockButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    lockButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    lockButton.Font = Enum.Font.SourceSansBold
+    lockButton.TextScaled = true
+    lockButton.BorderSizePixel = 0
+    lockButton.Text = "Lock: Off"
+    lockButton.Parent = lockBox
 
-	local closeButton = Instance.new("TextButton")
-	closeButton.Size = UDim2.new(0, 30, 0, 30)
-	closeButton.Position = UDim2.new(1, -30, 0, 0)
-	closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-	closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-	closeButton.Font = Enum.Font.SourceSansBold
-	closeButton.TextScaled = true
-	closeButton.Text = "-"
-	closeButton.Parent = lockBox
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0, 30, 0, 30)
+    closeButton.Position = UDim2.new(1, -30, 0, 0)
+    closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeButton.Font = Enum.Font.SourceSansBold
+    closeButton.TextScaled = true
+    closeButton.Text = "-"
+    closeButton.Parent = lockBox
 
-	local boxMinimized = false
-	local dragging = false
-	local dragStart, startPos
+    local boxMinimized = false
+    local dragging = false
+    local dragStart, startPos
 
-	lockButton.MouseButton1Click:Connect(function()
-		isLocked = not isLocked
-		lockButton.Text = isLocked and "Lock: On" or "Lock: Off"
-	end)
+    lockButton.MouseButton1Click:Connect(function()
+        isLocked = not isLocked
+        lockButton.Text = isLocked and "Lock: On" or "Lock: Off"
+    end)
 
-	closeButton.MouseButton1Click:Connect(function()
-		boxMinimized = not boxMinimized
-		if boxMinimized then
-			lockBox.Size = UDim2.new(0, 60, 0, 30)
-			lockButton.Visible = false
-		else
-			lockBox.Size = UDim2.new(0, 150, 0, 40)
-			lockButton.Visible = true
-		end
-	end)
+    closeButton.MouseButton1Click:Connect(function()
+        boxMinimized = not boxMinimized
+        if boxMinimized then
+            lockBox.Size = UDim2.new(0, 60, 0, 30)
+            lockButton.Visible = false
+        else
+            lockBox.Size = UDim2.new(0, 150, 0, 40)
+            lockButton.Visible = true
+        end
+    end)
 
-	lockBox.InputBegan:Connect(function(input, gpe)
-		if gpe or not lockBox.Visible then return end
-		if input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			dragStart = input.Position
-			startPos = lockBox.Position
+    lockBox.InputBegan:Connect(function(input, gpe)
+        if gpe or not lockBox.Visible then return end
+        if input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = lockBox.Position
 
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
-			end)
-		end
-	end)
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
 
-	UserInputService.InputChanged:Connect(function(input)
-		if dragging and input.UserInputType == Enum.UserInputType.Touch then
-			local delta = input.Position - dragStart
-			lockBox.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-		end
-	end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.Touch then
+            local delta = input.Position - dragStart
+            lockBox.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
 
-	local function createKeyButton(key, pos)
-		local button = Instance.new("TextButton")
-		button.Name = key .. "Button"
-		button.Text = key
-		button.Size = UDim2.new(0, 60, 0, 60)
-		button.Position = pos
-		button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		button.TextColor3 = Color3.fromRGB(0, 0, 0)
-		button.Font = Enum.Font.SourceSansBold
-		button.TextScaled = true
-		button.BorderSizePixel = 2
-		button.Parent = screenGui
+    local function createKeyButton(key, pos)
+        local button = Instance.new("TextButton")
+        button.Name = key .. "Button"
+        button.Text = key
+        button.Size = UDim2.new(0, 60, 0, 60)
+        button.Position = pos
+        button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        button.TextColor3 = Color3.fromRGB(0, 0, 0)
+        button.Font = Enum.Font.SourceSansBold
+        button.TextScaled = true
+        button.BorderSizePixel = 2
+        button.Parent = screenGui
 
-		local corner = Instance.new("UICorner")
-		corner.CornerRadius = UDim.new(0, 12)
-		corner.Parent = button
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 12)
+        corner.Parent = button
 
-		local bDragging = false
-		local bDragStart, bStartPos
+        local bDragging = false
+        local bDragStart, bStartPos
 
-		button.InputBegan:Connect(function(input, gpe)
-			if gpe or isLocked then return end
-			if input.UserInputType == Enum.UserInputType.Touch then
-				bDragging = true
-				bDragStart = input.Position
-				bStartPos = button.Position
+        button.InputBegan:Connect(function(input, gpe)
+            if gpe or isLocked then return end
+            if input.UserInputType == Enum.UserInputType.Touch then
+                bDragging = true
+                bDragStart = input.Position
+                bStartPos = button.Position
 
-				input.Changed:Connect(function()
-					if input.UserInputState == Enum.UserInputState.End then
-						bDragging = false
-					end
-				end)
-			end
-		end)
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        bDragging = false
+                    end
+                end)
+            end
+        end)
 
-		UserInputService.InputChanged:Connect(function(input)
-			if bDragging and input.UserInputType == Enum.UserInputType.Touch then
-				local delta = input.Position - bDragStart
-				button.Position = UDim2.new(bStartPos.X.Scale, bStartPos.X.Offset + delta.X, bStartPos.Y.Scale, bStartPos.Y.Offset + delta.Y)
-			end
-		end)
+        UserInputService.InputChanged:Connect(function(input)
+            if bDragging and input.UserInputType == Enum.UserInputType.Touch then
+                local delta = input.Position - bDragStart
+                button.Position = UDim2.new(bStartPos.X.Scale, bStartPos.X.Offset + delta.X, bStartPos.Y.Scale, bStartPos.Y.Offset + delta.Y)
+            end
+        end)
 
-		button.MouseButton1Click:Connect(function()
-			VirtualInputManager:SendKeyEvent(true, key, false, game)
-			wait()
-			VirtualInputManager:SendKeyEvent(false, key, false, game)
-		end)
-	end
+        button.MouseButton1Click:Connect(function()
+            VirtualInputManager:SendKeyEvent(true, key, false, game)
+            wait()
+            VirtualInputManager:SendKeyEvent(false, key, false, game)
+        end)
+    end
 
-	local leftKeys = {}
-	local rightKeys = {}
+    local leftKeys = {}
+    local rightKeys = {}
 
-	for _, key in ipairs(keys) do table.insert(leftKeys, key) end
-	if rightSideKeys then for _, key in ipairs(rightSideKeys) do table.insert(rightKeys, key) end end
+    for _, key in ipairs(keys) do table.insert(leftKeys, key) end
+    if rightSideKeys then for _, key in ipairs(rightSideKeys) do table.insert(rightKeys, key) end end
 
-	for i, key in ipairs(leftKeys) do
-		createKeyButton(key, UDim2.new(0, 20, 0, 100 + (i - 1) * 90))
-	end
-	for i, key in ipairs(rightKeys) do
-		createKeyButton(key, UDim2.new(1, -220 + (i - 1) * 70, 0, 160))
-	end
+    for i, key in ipairs(leftKeys) do
+        createKeyButton(key, UDim2.new(0, 20, 0, 100 + (i - 1) * 90))
+    end
+    for i, key in ipairs(rightKeys) do
+        createKeyButton(key, UDim2.new(1, -220 + (i - 1) * 70, 0, 160))
+    end
 end
 
 -- Script buttons:
 createButton("Sin Dragon", function()
-	mainGui:Destroy()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Sin%20Dragon"))()
-	createKeybindGui({"Z", "X", "C"})
+    mainGui:Destroy()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Sin%20Dragon"))()
+    createKeybindGui({"Z", "X", "C"})
 end)
 
 createButton("Motorcycle", function()
-	mainGui:Destroy()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Motorcycle"))()
-	createKeybindGui({"Z"})
+    mainGui:Destroy()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Motorcycle"))()
+    createKeybindGui({"Z"})
 end)
 
 createButton("Neptunian", function()
-	mainGui:Destroy()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Neptunian%20V"))()
-	createKeybindGui({"R", "F"}, {"Z", "X", "C"})
+    mainGui:Destroy()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Neptunian%20V"))()
+    createKeybindGui({"R", "F"}, {"Z", "X", "C"})
 end)
 
 createButton("Ban Hammer", function()
-	mainGui:Destroy()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Ban%20Hammer"))()
-	createKeybindGui({"E", "R"})
+    mainGui:Destroy()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Ban%20Hammer"))()
+    createKeybindGui({"E", "R"})
 end)
 
 createButton("Studio Dummy", function()
-	mainGui:Destroy()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Studio%20Dummy"))()
-	createKeybindGui({"E", "Z"})
+    mainGui:Destroy()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Studio%20Dummy"))()
+    createKeybindGui({"E", "Z"})
 end)
 
 createButton("Lighting Cannon", function()
-	mainGui:Destroy()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Lightning%20Cannon"))()
-	createKeybindGui({"E", "Z", "X"}, {"C", "V", "B"})
+    mainGui:Destroy()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Obfuscations/Lightning%20Cannon"))()
+    createKeybindGui({"E", "Z", "X"}, {"C", "V", "B"})
 end)
 
 createButton("Goner", function()
-	mainGui:Destroy()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Goner"))()
-	createKeybindGui({"Q"})
+    mainGui:Destroy()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/GenesisFE/Genesis/main/Loadstrings/Goner"))()
+    createKeybindGui({"Q"})
 end)
